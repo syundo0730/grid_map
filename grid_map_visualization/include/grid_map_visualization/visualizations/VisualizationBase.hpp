@@ -11,11 +11,9 @@
 #include <grid_map_core/GridMap.hpp>
 
 // ROS
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
 namespace grid_map_visualization {
-
-typedef std::map<std::string, XmlRpc::XmlRpcValue> StringMap;
 
 class VisualizationBase
 {
@@ -23,10 +21,10 @@ class VisualizationBase
 
   /*!
    * Constructor.
-   * @param nodeHandle the ROS node handle.
+   * @param node the ROS node handle.
    * @param name the name of the visualization.
    */
-  VisualizationBase(ros::NodeHandle& nodeHandle, const std::string& name);
+  VisualizationBase(rclcpp::Node::SharedPtr node, const std::string& name);
 
   /*!
    * Destructor.
@@ -35,10 +33,9 @@ class VisualizationBase
 
   /*!
    * Read parameters from ROS.
-   * @param config the parameters as XML.
    * @return true if successful.
    */
-  virtual bool readParameters(XmlRpc::XmlRpcValue& config);
+  virtual bool readParameters() = 0;
 
   /*!
    * Initialization.
@@ -66,51 +63,22 @@ class VisualizationBase
    * @param[out] value the string to set with the value.
    * @return true if parameter was found, false otherwise.
    */
-  bool getParam(const std::string& name, std::string& value);
+  template<typename T>
+  bool getParam(const std::string& name, T &value)
+  {
+    auto param_name = name_ + ".params." + name;
+    node_->declare_parameter(param_name);
+    return node_->get_parameter(param_name, value);
+  }
 
-  /*!
-   * Get a visualization parameter as a double.
-   * @param[in] name the name of the parameter
-   * @param[out] value the double to set with the value.
-   * @return true if parameter was found, false otherwise.
-   */
-  bool getParam(const std::string& name, double& value);
-
-  /*!
-   * Get a visualization parameter as a float.
-   * @param[in] name the name of the parameter
-   * @param[out] value the float to set with the value.
-   * @return true if parameter was found, false otherwise.
-   */
-  bool getParam(const std::string& name, float& value);
-
-  /*!
-   * Get a visualization parameter as an integer.
-   * @param[in] name the name of the parameter
-   * @param[out] value the int to set with the value.
-   * @return true if parameter was found, false otherwise.
-   */
-  bool getParam(const std::string&name, int& value);
-
-  /*!
-   * Get a visualization parameter as a boolean.
-   * @param[in] name the name of the parameter
-   * @param[out] value the boolean to set with the value.
-   * @return true if parameter was found, false otherwise.
-   */
-  bool getParam(const std::string& name, bool& value);
+  //! QoS for visualization
+  rclcpp::QoS custom_qos_;
 
   //! ROS nodehandle.
-  ros::NodeHandle& nodeHandle_;
+  rclcpp::Node::SharedPtr node_;
 
   //! Name of the visualization.
   std::string name_;
-
-  //! Storage of the parsed XML parameters.
-  StringMap parameters_;
-
-  //! ROS publisher of the occupancy grid.
-  ros::Publisher publisher_;
 };
 
 } /* namespace */

@@ -19,8 +19,8 @@
 
 namespace grid_map_visualization {
 
-VisualizationFactory::VisualizationFactory(ros::NodeHandle& nodeHandle)
-    : nodeHandle_(nodeHandle)
+VisualizationFactory::VisualizationFactory(rclcpp::Node::SharedPtr node)
+    : node_(node)
 {
   types_.push_back("point_cloud");
   types_.push_back("flat_point_cloud");
@@ -43,12 +43,12 @@ std::shared_ptr<VisualizationBase> VisualizationFactory::getInstance(const std::
                                                                      const std::string& name)
 {
   // TODO: Make this nicer: http://stackoverflow.com/questions/9975672/c-automatic-factory-registration-of-derived-types
-  if (type == "point_cloud") return std::shared_ptr<VisualizationBase>(new PointCloudVisualization(nodeHandle_, name));
-  if (type == "flat_point_cloud") return std::shared_ptr<VisualizationBase>(new FlatPointCloudVisualization(nodeHandle_, name));
-  if (type == "vectors") return std::shared_ptr<VisualizationBase>(new VectorVisualization(nodeHandle_, name));
-  if (type == "occupancy_grid") return std::shared_ptr<VisualizationBase>(new OccupancyGridVisualization(nodeHandle_, name));
-  if (type == "grid_cells") return std::shared_ptr<VisualizationBase>(new GridCellsVisualization(nodeHandle_, name));
-  if (type == "map_region") return std::shared_ptr<VisualizationBase>(new MapRegionVisualization(nodeHandle_, name));
+  if (type == "point_cloud") return std::shared_ptr<VisualizationBase>(new PointCloudVisualization(node_, name));
+  if (type == "flat_point_cloud") return std::shared_ptr<VisualizationBase>(new FlatPointCloudVisualization(node_, name));
+  if (type == "vectors") return std::shared_ptr<VisualizationBase>(new VectorVisualization(node_, name));
+  if (type == "occupancy_grid") return std::shared_ptr<VisualizationBase>(new OccupancyGridVisualization(node_, name));
+  if (type == "grid_cells") return std::shared_ptr<VisualizationBase>(new GridCellsVisualization(node_, name));
+  if (type == "map_region") return std::shared_ptr<VisualizationBase>(new MapRegionVisualization(node_, name));
   return std::shared_ptr<VisualizationBase>();
 }
 

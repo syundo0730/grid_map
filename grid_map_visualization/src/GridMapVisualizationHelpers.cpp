@@ -15,7 +15,7 @@ using namespace Eigen;
 
 namespace grid_map_visualization {
 
-void getColorMessageFromColorVector(std_msgs::ColorRGBA& colorMessage, const Eigen::Vector3f& colorVector, bool resetTransparency)
+void getColorMessageFromColorVector(std_msgs::msg::ColorRGBA& colorMessage, const Eigen::Vector3f& colorVector, bool resetTransparency)
 {
   colorMessage.r = colorVector(0);
   colorMessage.g = colorVector(1);
@@ -23,12 +23,12 @@ void getColorMessageFromColorVector(std_msgs::ColorRGBA& colorMessage, const Eig
   if (resetTransparency) colorMessage.a = 1.0;
 }
 
-void getColorVectorFromColorMessage(Eigen::Vector3f& colorVector, const std_msgs::ColorRGBA& colorMessage)
+void getColorVectorFromColorMessage(Eigen::Vector3f& colorVector, const std_msgs::msg::ColorRGBA& colorMessage)
 {
   colorVector << colorMessage.r, colorMessage.g, colorMessage.b;
 }
 
-void setColorFromColorValue(std_msgs::ColorRGBA& color, const unsigned long& colorValue, bool resetTransparency)
+void setColorFromColorValue(std_msgs::msg::ColorRGBA& color, const unsigned long& colorValue, bool resetTransparency)
 {
   Vector3f colorVector;
   grid_map::colorValueToVector(colorValue, colorVector);
@@ -51,8 +51,8 @@ void setColorChannelFromValue(float& colorChannel, const double value, const dou
   colorChannel = static_cast<float>(computeLinearMapping(value, lowerValueBound, upperValueBound, tempColorChannelLowerValue, tempColorChannelUpperValue));
 }
 
-void interpolateBetweenColors(std_msgs::ColorRGBA& color, const std_msgs::ColorRGBA& colorForLowerValue,
-                              const std_msgs::ColorRGBA& colorForUpperValue, const double value,
+void interpolateBetweenColors(std_msgs::msg::ColorRGBA& color, const std_msgs::msg::ColorRGBA& colorForLowerValue,
+                              const std_msgs::msg::ColorRGBA& colorForUpperValue, const double value,
                               const double lowerValueBound, const double upperValueBound)
 {
   setColorChannelFromValue(color.r, value, lowerValueBound, upperValueBound, false, colorForLowerValue.r, colorForUpperValue.r);
@@ -60,12 +60,12 @@ void interpolateBetweenColors(std_msgs::ColorRGBA& color, const std_msgs::ColorR
   setColorChannelFromValue(color.b, value, lowerValueBound, upperValueBound, false, colorForLowerValue.b, colorForUpperValue.b);
 }
 
-void setSaturationFromValue(std_msgs::ColorRGBA& color, const double value, const double lowerValueBound,
+void setSaturationFromValue(std_msgs::msg::ColorRGBA& color, const double value, const double lowerValueBound,
                             const double upperValueBound, const double maxSaturation, const double minSaturation)
 {
   // Based on "changeSaturation" function by Darel Rex Finley.
   const Eigen::Array3f HspFactors(.299, .587, .114); // see http://alienryderflex.com/hsp.html
-  float saturationChange = static_cast<float>(computeLinearMapping(value, value, upperValueBound, maxSaturation, minSaturation));
+  float saturationChange = static_cast<float>(computeLinearMapping(value, lowerValueBound, upperValueBound, maxSaturation, minSaturation));
   Vector3f colorVector;
   getColorVectorFromColorMessage(colorVector, color);
   float perceivedBrightness = sqrt((colorVector.array().square() * HspFactors).sum());
@@ -74,7 +74,7 @@ void setSaturationFromValue(std_msgs::ColorRGBA& color, const double value, cons
   getColorMessageFromColorVector(color, colorVector, false);
 }
 
-void setColorFromValue(std_msgs::ColorRGBA& color, const double value, const double lowerValueBound, const double upperValueBound)
+void setColorFromValue(std_msgs::msg::ColorRGBA& color, const double value, const double lowerValueBound, const double upperValueBound)
 {
   Vector3f hsl; // Hue: [0, 2 Pi], Saturation and Lightness: [0, 1]
   Vector3f rgb;

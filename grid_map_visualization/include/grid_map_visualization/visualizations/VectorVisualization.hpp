@@ -12,9 +12,9 @@
 #include <grid_map_core/GridMap.hpp>
 
 // ROS
-#include <ros/ros.h>
-#include <visualization_msgs/Marker.h>
-#include <std_msgs/ColorRGBA.h>
+#include "rclcpp/rclcpp.hpp"
+#include <visualization_msgs/msg/marker.hpp>
+#include <std_msgs/msg/color_rgba.hpp>
 
 // STD
 #include <vector>
@@ -30,10 +30,10 @@ class VectorVisualization : public VisualizationBase
 
   /*!
    * Constructor.
-   * @param nodeHandle the ROS node handle.
+   * @param node the ROS node handle.
    * @param name the name of the visualization.
    */
-  VectorVisualization(ros::NodeHandle& nodeHandle, const std::string& name);
+  VectorVisualization(rclcpp::Node::SharedPtr node, const std::string& name);
 
   /*!
    * Destructor.
@@ -42,10 +42,9 @@ class VectorVisualization : public VisualizationBase
 
   /*!
    * Read parameters from ROS.
-   * @param config the parameters as XML.
    * @return true if successful.
    */
-  bool readParameters(XmlRpc::XmlRpcValue& config);
+  bool readParameters();
 
   /*!
    * Initialization.
@@ -60,9 +59,11 @@ class VectorVisualization : public VisualizationBase
   bool visualize(const grid_map::GridMap& map);
 
  private:
+  //! ROS publisher
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr publisher_;
 
   //! Marker to be published.
-  visualization_msgs::Marker marker_;
+  visualization_msgs::msg::Marker marker_;
 
   //! Types that are transformed to vectors.
   std::vector<std::string> types_;
@@ -77,7 +78,7 @@ class VectorVisualization : public VisualizationBase
   double lineWidth_;
 
   //! Color of the vectors.
-  std_msgs::ColorRGBA color_;
+  std_msgs::msg::ColorRGBA color_;
 };
 
 } /* namespace */

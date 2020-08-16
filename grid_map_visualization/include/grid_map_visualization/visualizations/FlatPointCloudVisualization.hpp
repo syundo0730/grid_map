@@ -12,7 +12,8 @@
 #include <grid_map_core/GridMap.hpp>
 
 // ROS
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 namespace grid_map_visualization {
 
@@ -25,10 +26,10 @@ class FlatPointCloudVisualization : public VisualizationBase
 
   /*!
    * Constructor.
-   * @param nodeHandle the ROS node handle.
+   * @param node the ROS node handle.
    * @param name the name of the visualization.
    */
-  FlatPointCloudVisualization(ros::NodeHandle& nodeHandle, const std::string& name);
+  FlatPointCloudVisualization(rclcpp::Node::SharedPtr node, const std::string& name);
 
   /*!
    * Destructor.
@@ -37,10 +38,9 @@ class FlatPointCloudVisualization : public VisualizationBase
 
   /*!
    * Read parameters from ROS.
-   * @param config the parameters as XML.
    * @return true if successful.
    */
-  bool readParameters(XmlRpc::XmlRpcValue& config);
+  bool readParameters();
 
   /*!
    * Initialization.
@@ -55,6 +55,9 @@ class FlatPointCloudVisualization : public VisualizationBase
   bool visualize(const grid_map::GridMap& map);
 
  private:
+  //! ROS publisher
+  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr publisher_;
+
   //! Type that is transformed to points.
   std::string layer_;
 

@@ -12,7 +12,8 @@
 #include <grid_map_core/GridMap.hpp>
 
 // ROS
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
+#include <nav_msgs/msg/occupancy_grid.hpp>
 
 namespace grid_map_visualization {
 
@@ -22,10 +23,10 @@ class OccupancyGridVisualization : public VisualizationBase
 
   /*!
    * Constructor.
-   * @param nodeHandle the ROS node handle.
+   * @param node the ROS node handle.
    * @param name the name of the visualization.
    */
-  OccupancyGridVisualization(ros::NodeHandle& nodeHandle, const std::string& name);
+  OccupancyGridVisualization(rclcpp::Node::SharedPtr node, const std::string& name);
 
   /*!
    * Destructor.
@@ -34,10 +35,9 @@ class OccupancyGridVisualization : public VisualizationBase
 
   /*!
    * Read parameters from ROS.
-   * @param config the parameters as XML.
    * @return true if successful.
    */
-  bool readParameters(XmlRpc::XmlRpcValue& config);
+  bool readParameters();
 
   /*!
    * Initialization.
@@ -52,6 +52,8 @@ class OccupancyGridVisualization : public VisualizationBase
   bool visualize(const grid_map::GridMap& map);
 
  private:
+  //! ROS publisher
+  rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr publisher_;
 
   //! Type that is transformed to the occupancy grid.
   std::string layer_;

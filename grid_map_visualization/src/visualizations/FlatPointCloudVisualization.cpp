@@ -9,12 +9,10 @@
 #include <grid_map_visualization/visualizations/FlatPointCloudVisualization.hpp>
 #include <grid_map_ros/GridMapRosConverter.hpp>
 
-#include <sensor_msgs/PointCloud2.h>
-
 namespace grid_map_visualization {
 
-FlatPointCloudVisualization::FlatPointCloudVisualization(ros::NodeHandle& nodeHandle, const std::string& name)
-    : VisualizationBase(nodeHandle, name),
+FlatPointCloudVisualization::FlatPointCloudVisualization(rclcpp::Node::SharedPtr node, const std::string& name)
+    : VisualizationBase(node, name),
       height_(0.0)
 {
 }
@@ -23,13 +21,11 @@ FlatPointCloudVisualization::~FlatPointCloudVisualization()
 {
 }
 
-bool FlatPointCloudVisualization::readParameters(XmlRpc::XmlRpcValue& config)
+bool FlatPointCloudVisualization::readParameters()
 {
-  VisualizationBase::readParameters(config);
-
   height_ = 0.0;
   if (!getParam("height", height_)) {
-    ROS_INFO("FlatPointCloudVisualization with name '%s' did not find a 'height' parameter. Using default.", name_.c_str());
+    RCLCPP_INFO(node_->get_logger(), "FlatPointCloudVisualization with name '%s' did not find a 'height' parameter. Using default.", name_.c_str());
   }
 
   return true;
@@ -37,20 +33,20 @@ bool FlatPointCloudVisualization::readParameters(XmlRpc::XmlRpcValue& config)
 
 bool FlatPointCloudVisualization::initialize()
 {
-  publisher_ = nodeHandle_.advertise<sensor_msgs::PointCloud2>(name_, 1, true);
+  publisher_ = node_->create_publisher<sensor_msgs::msg::PointCloud2>(name_, custom_qos_);
   return true;
 }
 
 bool FlatPointCloudVisualization::visualize(const grid_map::GridMap& map)
 {
   if (!isActive()) return true;
-  sensor_msgs::PointCloud2 pointCloud;
+  sensor_msgs::msg::PointCloud2 pointCloud;
 
   grid_map::GridMap mapCopy(map);
   mapCopy.add("flat", height_);
   grid_map::GridMapRosConverter::toPointCloud(mapCopy, "flat", pointCloud);
 
-  publisher_.publish(pointCloud);
+  publisher_->publish(pointCloud);
   return true;
 }
 

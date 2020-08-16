@@ -18,14 +18,14 @@ namespace grid_map_visualization {
 class VisualizationFactory
 {
  public:
-  VisualizationFactory(ros::NodeHandle& nodeHandle);
+  VisualizationFactory(rclcpp::Node::SharedPtr node);
   virtual ~VisualizationFactory();
 
   bool isValidType(const std::string& type);
   std::shared_ptr<VisualizationBase> getInstance(const std::string& type, const std::string& name);
 
  private:
-  ros::NodeHandle& nodeHandle_;
+  rclcpp::Node::SharedPtr node_;
   std::vector<std::string> types_;
 };
 

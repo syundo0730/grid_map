@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include <grid_map_msgs/GridMap.h>
+#include <grid_map_msgs/msg/grid_map.hpp>
 #include <grid_map_visualization/visualizations/VisualizationFactory.hpp>
 #include <grid_map_visualization/visualizations/MapRegionVisualization.hpp>
 #include <grid_map_visualization/visualizations/PointCloudVisualization.hpp>
@@ -17,7 +17,7 @@
 #include <grid_map_visualization/visualizations/OccupancyGridVisualization.hpp>
 
 // ROS
-#include <ros/ros.h>
+#include "rclcpp/rclcpp.hpp"
 
 // STD
 #include <vector>
@@ -34,9 +34,9 @@ class GridMapVisualization
 
   /*!
    * Constructor.
-   * @param nodeHandle the ROS node handle.
+   * @param node the ROS node
    */
-  GridMapVisualization(ros::NodeHandle& nodeHandle, const std::string& parameterName);
+  GridMapVisualization(rclcpp::Node::SharedPtr node);
 
   /*!
    * Destructor.
@@ -47,7 +47,7 @@ class GridMapVisualization
    * Callback function for the grid map.
    * @param message the grid map message to be visualized.
    */
-  void callback(const grid_map_msgs::GridMap& message);
+  void callback(const std::shared_ptr<grid_map_msgs::msg::GridMap> message);
 
  private:
 
@@ -67,18 +67,14 @@ class GridMapVisualization
    * Check if visualizations are active (subscribed to),
    * and accordingly cancels/activates the subscription to the
    * grid map to safe bandwidth.
-   * @param timerEvent the timer event.
    */
-  void updateSubscriptionCallback(const ros::TimerEvent& timerEvent);
+  void updateSubscriptionCallback();
 
-  //! ROS nodehandle.
-  ros::NodeHandle& nodeHandle_;
-
-  //! Parameter name of the visualizer configuration list.
-  std::string visualizationsParameter_;
+  //! ROS node.
+  rclcpp::Node::SharedPtr node_;
 
   //! ROS subscriber to the grid map.
-  ros::Subscriber mapSubscriber_;
+  rclcpp::Subscription<grid_map_msgs::msg::GridMap>::SharedPtr mapSubscriber_;
 
   //! Topic name of the grid map to be visualized.
   std::string mapTopic_;
@@ -90,10 +86,10 @@ class GridMapVisualization
   VisualizationFactory factory_;
 
   //! Timer to check the activity of the visualizations.
-  ros::Timer activityCheckTimer_;
+  rclcpp::TimerBase::SharedPtr activityCheckTimer_;
 
   //! Duration of checking the activity of the visualizations.
-  ros::Duration activityCheckDuration_;
+  std::chrono::milliseconds activityCheckDuration_;
 
   //! If the grid map visualization is subscribed to the grid map.
   bool isSubscribed_;

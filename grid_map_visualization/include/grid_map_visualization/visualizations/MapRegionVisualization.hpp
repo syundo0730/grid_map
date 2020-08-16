@@ -12,9 +12,9 @@
 #include <grid_map_core/GridMap.hpp>
 
 // ROS
-#include <ros/ros.h>
-#include <visualization_msgs/Marker.h>
-#include <std_msgs/ColorRGBA.h>
+#include "rclcpp/rclcpp.hpp"
+#include <visualization_msgs/msg/marker.hpp>
+#include <std_msgs/msg/color_rgba.hpp>
 
 namespace grid_map_visualization {
 
@@ -27,10 +27,10 @@ class MapRegionVisualization : public VisualizationBase
 
   /*!
    * Constructor.
-   * @param nodeHandle the ROS node handle.
+   * @param node the ROS node handle.
    * @param name the name of the visualization.
    */
-  MapRegionVisualization(ros::NodeHandle& nodeHandle, const std::string& name);
+  MapRegionVisualization(rclcpp::Node::SharedPtr node, const std::string& name);
 
   /*!
    * Destructor.
@@ -39,10 +39,9 @@ class MapRegionVisualization : public VisualizationBase
 
   /*!
    * Read parameters from ROS.
-   * @param config the parameters as XML.
    * @return true if successful.
    */
-  bool readParameters(XmlRpc::XmlRpcValue& config);
+  bool readParameters();
 
   /*!
    * Initialization.
@@ -57,15 +56,17 @@ class MapRegionVisualization : public VisualizationBase
   bool visualize(const grid_map::GridMap& map);
 
  private:
+  //! ROS publisher
+  rclcpp::Publisher<visualization_msgs::msg::Marker>::SharedPtr publisher_;
 
   //! Marker to be published.
-  visualization_msgs::Marker marker_;
+  visualization_msgs::msg::Marker marker_;
 
   //! Number of vertices of the map region visualization.
   const unsigned int nVertices_;
 
   //! Color of the map region visualization.
-  std_msgs::ColorRGBA color_;
+  std_msgs::msg::ColorRGBA color_;
 
   //! Line width of the map region marker [m].
   double lineWidth_;
